@@ -1,0 +1,89 @@
+# Your first LAVA JOB definition for an x86_64 QEMU
+device_type: this
+job_name: test pipeline, first job
+
+timeouts:
+  job:
+    minutes: 15
+  action:
+    minutes: 5
+  connection:
+    minutes: 2
+priority: medium
+visibility: public
+context:
+  arch: amd64
+
+# ACTION_BLOCK
+actions:
+
+- deploy:
+    to: overlay
+
+- boot:
+    connection: serial
+    method: minimal
+    prompts:
+    - ".*[a-zA-Z0-9_]+@.*# $"
+    transfer_overlay:
+      transfer_method: nfs
+      download_command: bash -c 'cp -r ${0#*:}/* $1/'
+      unpack_command: cp -rf
+    reset: false
+
+- test:
+    timeout:
+      minutes: 5
+    definitions:
+    - repository: ./inline
+      from: git
+      path: automated/linux/smoke/smoke.yaml
+      name: smoke-tests
+    - repository: ./inline
+      from: git
+      path: automated/linux/cyclictest/cyclictest.yaml
+      name: cyclictest
+    - repository: ./inline
+      from: git
+      path: automated/linux/device-tree/device-tree.yaml
+      name: device-tree
+    - repository: ./inline
+      from: git
+      path: automated/linux/ethernet/ethernet.yaml
+      name: ethernet
+    - repository: ./inline
+      from: git
+      path: automated/linux/fdisk/fdisk.yaml
+      name: fdisk
+    - repository: ./inline
+      from: git
+      path: automated/linux/fs-resize/fs-resize.yaml
+      name: fs-resize
+    - repository: ./inline
+      from: git
+      path: automated/linux/gpiod/gpiod.yaml
+      name: gpiod
+    - repository: ./inline
+      from: git
+      path: automated/linux/isolate-task/isolate-task.yaml
+      name: isolate-task
+    - repository: ./inline
+      from: git
+      path: automated/linux/kselftest/kselftest.yaml
+      name: kselftest
+    - repository: ./inline
+      from: git
+      path: automated/linux/libhugetlbfs/libhugetlbfs.yaml
+      name: libhugetlbfs
+    - repository: ./inline
+      from: git
+      path: automated/linux/modules/modules.yaml
+      name: modules
+    - repository: ./inline
+      from: git
+      path: automated/linux/network-basic/network-basic.yaml
+      name: network-basic
+    - repository: ./inline
+      from: git
+      path: automated/linux/ptsematest/ptsematest.yaml
+      name: ptsematest
